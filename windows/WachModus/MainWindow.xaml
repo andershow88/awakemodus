@@ -41,7 +41,7 @@
     </Style>
     <Style x:Key="MetricValue" TargetType="TextBlock"><Setter Property="FontSize" Value="14"/><Setter Property="FontWeight" Value="SemiBold"/></Style>
   </Window.Resources>
-  <Grid x:Name="Viewport" SizeChanged="ResizeSurface" ClipToBounds="True" Background="{DynamicResource BackgroundBrush}">
+  <Canvas x:Name="Viewport" SizeChanged="ResizeSurface" ClipToBounds="True" Background="{DynamicResource BackgroundBrush}">
     <Grid x:Name="Surface" Width="540" Height="460" HorizontalAlignment="Left" VerticalAlignment="Top">
       <Grid.RenderTransform><ScaleTransform x:Name="SurfaceScale"/></Grid.RenderTransform>
       <Grid Margin="16">
@@ -118,5 +118,5 @@
         </DockPanel>
       </Grid>
     </Grid>
-  </Grid>
+  </Canvas>
 </Window>

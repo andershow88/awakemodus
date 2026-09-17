@@ -97,18 +97,26 @@ internal static class SmokeTests
                 Check(Math.Abs(window.Viewport.ActualWidth - width) < 1 && Math.Abs(window.Viewport.ActualHeight - height) < 1,
                     $"{name}: native client area reaches {width} x {height} (actual {window.Viewport.ActualWidth} x {window.Viewport.ActualHeight})");
                 var expected = LayoutScale.ForSize(width, height);
-                if (name == "large") Check(expected.Scale > 1.25, "Large window genuinely enlarges the full interface");
+                if (name == "large") Check(expected.Scale > 1.25, "Large window enlarges the full interface by more than 25 percent");
                 Check(Math.Abs(window.SurfaceScale.ScaleX - expected.Scale) < 0.001, $"{name}: content scales with the viewport");
                 foreach (var button in new[] { window.ToggleButton, window.SettingsButton, window.HalfHourButton, window.ResetButton })
                 {
                     var bounds = button.TransformToAncestor(window.Viewport).TransformBounds(new Rect(button.RenderSize));
                     Check(bounds.Left >= -1 && bounds.Top >= -1 && bounds.Right <= width + 1 && bounds.Bottom <= height + 1 && bounds.Width > 10 && bounds.Height > 10,
                         $"{name}: {button.Name} remains visible and usable");
+                    var points = new[] {
+                        new Point(button.ActualWidth / 2, button.ActualHeight / 2),
+                        new Point(6, 6), new Point(button.ActualWidth - 6, 6),
+                        new Point(6, button.ActualHeight - 6), new Point(button.ActualWidth - 6, button.ActualHeight - 6)
+                    };
+                    var hits = points.All(point =>
+                    {
+                        var hit = window.Viewport.InputHitTest(button.TranslatePoint(point, window.Viewport)) as DependencyObject;
+                        while (hit is not null && hit != button) hit = VisualTreeHelper.GetParent(hit);
+                        return hit == button;
+                    });
+                    Check(hits, $"{name}: {button.Name} is clickable at its center and all four corners");
                 }
-                var center = window.ToggleButton.TranslatePoint(new Point(window.ToggleButton.ActualWidth / 2, window.ToggleButton.ActualHeight / 2), window.Viewport);
-                var hit = window.Viewport.InputHitTest(center) as DependencyObject;
-                while (hit is not null && hit != window.ToggleButton) hit = VisualTreeHelper.GetParent(hit);
-                Check(hit == window.ToggleButton, $"{name}: scaled button hit-test matches its visible location");
                 if (snapshots is not null)
                 {
                     foreach (var theme in new[] { Appearance.Light, Appearance.Dark })
