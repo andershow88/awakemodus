@@ -1,0 +1,11 @@
+{
+  "version": "2.2.0",
+  "runtime": "win-x64",
+  "sourceCommit": "192152182d687988e938f4528f1cb65d52185144",
+  "executable": "WachModus.exe",
+  "sha256": "5e6246006aeec6dc2cdd26368b551c814f614dd085712e2a77b1d2108637f03b",
+  "bytes": 75716594,
+  "nativeChecks": 69,
+  "startupChecks": 3,
+  "allTestsPassed": true
+}
