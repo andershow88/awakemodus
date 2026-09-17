@@ -1,0 +1,59 @@
+name: Build and test
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  macos:
+    name: macOS native build and tests
+    runs-on: macos-15
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and test macOS app
+        run: |
+          ./build.sh
+          ./build/WachModus --selftest --system
+
+  windows:
+    name: Windows ${{ matrix.arch }} build, tests and standalone EXE
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x64
+            runner: windows-2025
+          - arch: arm64
+            runner: windows-11-arm
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Unit tests, publish and native EXE tests
+        shell: pwsh
+        run: ./windows/build.ps1 -Runtime win-${{ matrix.arch }} -Output "$pwd/artifacts/publish-${{ matrix.arch }}" -SourceCommit $env:GITHUB_SHA
+      - name: Verify the ready-to-run EXE checked into main
+        shell: pwsh
+        run: ./windows/test-committed-exe.ps1 -Architecture ${{ matrix.arch }}
+      - name: Upload verified EXE
+        uses: actions/upload-artifact@v4
+        with:
+          name: WachModus-Windows-${{ matrix.arch }}
+          path: artifacts/publish-${{ matrix.arch }}/
+          if-no-files-found: error
+      - name: Upload test results and UI screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Tests-Windows-${{ matrix.arch }}
+          path: |
+            artifacts/tests-win-${{ matrix.arch }}/
+            artifacts/standalone-${{ matrix.arch }}/checkout-exe.json
+            artifacts/standalone-${{ matrix.arch }}/checkout-startup.json

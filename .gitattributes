@@ -1,0 +1,13 @@
+* text=auto
+*.swift text eol=lf
+*.sh text eol=lf
+*.cs text eol=lf
+*.xaml text eol=lf
+*.csproj text eol=lf
+*.yml text eol=lf
+*.ps1 text eol=crlf
+*.exe binary
+*.icns binary
+*.ico binary
+*.png binary
+WachModus.app/Contents/MacOS/WachModus binary
