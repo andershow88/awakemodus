@@ -75,7 +75,18 @@ internal static class SmokeTests
 
             var frameWidth = window.ActualWidth - window.Viewport.ActualWidth;
             var frameHeight = window.ActualHeight - window.Viewport.ActualHeight;
-            foreach (var (name, width, height) in new[] { ("compact", 540.0, 460.0), ("large", 1080.0, 920.0), ("small", 480.0, 400.0), ("wide", 1000.0, 460.0), ("tall", 540.0, 820.0) })
+            // Hosted Windows desktops can be 1024 x 768. Respect the OS window limit
+            // while still testing a real enlargement; 2x scaling also has a core test.
+            var availableWidth = Math.Floor(SystemParameters.WorkArea.Width - frameWidth - 16);
+            var availableHeight = Math.Floor(SystemParameters.WorkArea.Height - frameHeight - 16);
+            window.Left = SystemParameters.WorkArea.Left + 8;
+            window.Top = SystemParameters.WorkArea.Top + 8;
+            foreach (var (name, width, height) in new[] {
+                ("compact", 540.0, 460.0),
+                ("large", Math.Min(1080, availableWidth), Math.Min(920, availableHeight)),
+                ("small", 480.0, 400.0),
+                ("wide", Math.Min(1000, availableWidth), 460.0),
+                ("tall", 540.0, Math.Min(820, availableHeight)) })
             {
                 // Resize the native window, including its measured title bar and borders.
                 // Arranging only the child would leave WPF's native client-area clip at the old size.
@@ -86,6 +97,7 @@ internal static class SmokeTests
                 Check(Math.Abs(window.Viewport.ActualWidth - width) < 1 && Math.Abs(window.Viewport.ActualHeight - height) < 1,
                     $"{name}: native client area reaches {width} x {height} (actual {window.Viewport.ActualWidth} x {window.Viewport.ActualHeight})");
                 var expected = LayoutScale.ForSize(width, height);
+                if (name == "large") Check(expected.Scale > 1.25, "Large window genuinely enlarges the full interface");
                 Check(Math.Abs(window.SurfaceScale.ScaleX - expected.Scale) < 0.001, $"{name}: content scales with the viewport");
                 foreach (var button in new[] { window.ToggleButton, window.SettingsButton, window.HalfHourButton, window.ResetButton })
                 {
