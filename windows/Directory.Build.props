@@ -4,6 +4,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <Deterministic>true</Deterministic>
+    <DebugType>embedded</DebugType>
     <Version>2.2.0</Version>
     <Company>andershow88</Company>
     <Product>WachModus</Product>

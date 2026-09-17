@@ -22,7 +22,7 @@ $exe = Join-Path $Output 'WachModus.exe'
 if (-not (Test-Path $exe)) { throw 'Die EXE fehlt.' }
 if ((Get-Item $exe).Length -ge 100MB) { throw 'Die EXE überschreitet das GitHub-Dateilimit.' }
 $dependencies = Get-ChildItem $Output -File | Where-Object { $_.Extension -in '.dll', '.pdb', '.config' -or $_.Name -like '*.runtimeconfig.json' }
-if ($dependencies) { throw 'Die Veröffentlichung enthält unerwartete externe Laufzeitdateien.' }
+if ($dependencies) { throw "Die Veröffentlichung enthält unerwartete externe Dateien: $($dependencies.Name -join ', ')" }
 
 $report = Join-Path $testResults 'published-exe.json'
 $snapshots = Join-Path $testResults 'screenshots'
